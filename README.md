@@ -17,7 +17,7 @@ No specific installation is required to run this project. Any modern web browser
 
 ## Usage
 
-To view the registration form, simply open the `login-code-dynamic-.html` file in a web browser.
+To view the registration form, simply open the `login-code-dynamic.html` file in a web browser.
 
 ## Implementation Details
 
