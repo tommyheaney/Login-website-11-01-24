@@ -7,7 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js"></script>
 <style>
-  /* Your CSS styles go here, mirroring the design from the image provided */
+  /* CSS styles */
   body {
     font-family: Arial, sans-serif;
     background-color: #f7f7f7;
@@ -72,34 +72,72 @@
   .login-link:hover {
     text-decoration: underline;
   }
+
+  .help-message {
+  display: block;
+  font-size: 0.85em;
+  color: #6c757d;
+}
+
 </style>
 </head>
 <body>
 
-<div class="register-form-container">
-  <h2>Create an Account</h2>
-  <form id="registration-form">
-    <label for="email">Email</label>
-    <input type="email" id="email" name="email" required>
-    <label for="password">Password</label>
-<input type="password" id="password" name="password" minlength="10" title="Password must be at least 10 characters long." required>
-    <div class="password-strength" id="password-strength">Weak</div>
-    <div class="terms">
-      <input type="checkbox" id="terms" name="terms" required>
-      <label for="terms">I have read and agree to Lucy's Terms & Conditions and Privacy Policy.</label>
-    </div>
-    <input type="submit" value="Register" class="register-button">
-  </form>
-  <div class="login-link">Already have an account?</div>
-</div>
+    <div class="register-form-container">
+        <h2>Create an Account</h2>
+        <form id="registration-form">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" 
+                 placeholder="Enter a valid email address"
+                 title="Please enter a valid email address, including the domain and a top-level domain (e.g., .com, .co.uk, etc.)." required>
+          <span id="email-help" class="help-message"></span>
+      
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" minlength="10" 
+                 title="Password must be at least 10 characters long." required>
+          <div class="password-strength" id="password-strength">Weak</div>
+          <div class="terms">
+            <input type="checkbox" id="terms" name="terms" required>
+            <label for="terms">I have read and agree to Lucy Pittaway's Terms & Conditions and Privacy Policy.</label>
+          </div>
+          <input type="submit" value="Register" class="register-button">
+        </form>
+        <div class="login-link">Already have an account?</div>
+      </div>
+      
 
 <script>
+
 $(document).ready(function() {
   var submitButton = $('#registration-form input[type="submit"]');
-  submitButton.attr('disabled', true); // Start with the submit button disabled.
+  var passwordInput = $('#password');
+  var emailInput = $('#email');
+  var emailHelp = $('#email-help');
 
-  $('#password').on('input', function() {
-    var passwordValue = $(this).val();
+  // Initially disable the password input and submit button
+  passwordInput.prop('disabled', true);
+  submitButton.prop('disabled', true);
+
+  // Regular expression for validating email
+  var emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  // Event listener for email input to validate email and enable password input
+  emailInput.on('input', function() {
+    var emailValue = emailInput.val();
+    if(emailRegex.test(emailValue)) {
+      passwordInput.prop('disabled', false);
+      emailHelp.text('Your email address looks good! Please enter a password.');
+      // Do not enable the submit button until a password is entered
+    } else {
+      passwordInput.prop('disabled', true);
+      submitButton.prop('disabled', true);
+      emailHelp.text('Please enter a valid email address to proceed.');
+    }
+  });
+
+  // Event listener for password input to check the strength and enable submit button
+  passwordInput.on('input', function() {
+    var passwordValue = passwordInput.val();
     var strength = zxcvbn(passwordValue);
     var strengthText = 'Weak';
     var strengthColor = '#d9534f'; // Red color for weak password.
@@ -110,44 +148,53 @@ $(document).ready(function() {
       switch(strength.score) {
         case 0:
         case 1:
-          // Weak password.
           strengthText = 'Weak';
-          isPasswordAcceptable = false;
           break;
         case 2:
         case 3:
-          // Medium strength password.
           strengthText = 'Medium';
           strengthColor = '#f0ad4e'; // Orange
           isPasswordAcceptable = true;
           break;
         case 4:
-          // Strong password.
           strengthText = 'Strong';
           strengthColor = '#5cb85c'; // Green
           isPasswordAcceptable = true;
           break;
       }
+      // Update the password strength text and color.
+      $('#password-strength').text(strengthText).css('color', strengthColor);
+      // Enable submit button only if the password is acceptable.
+      submitButton.prop('disabled', !isPasswordAcceptable);
     } else {
-      // Password does not meet the length requirement.
-      strengthText = 'Weak (min 10 chars)';
+      $('#password-strength').text('Password must be at least 10 characters.').css('color', strengthColor);
+      // Keep the submit button disabled if the password is not acceptable.
+      submitButton.prop('disabled', true);
     }
-
-    // Update the password strength text and color.
-    $('#password-strength').text(strengthText).css('color', strengthColor);
-    // Enable or disable the submit button based on the password strength.
-    submitButton.attr('disabled', !isPasswordAcceptable);
   });
 
+  // Event listener for form submission to perform final validation
   $('#registration-form').on('submit', function(e) {
-    var passwordValue = $('#password').val();
+    var emailValue = emailInput.val();
+    var passwordValue = passwordInput.val();
+
+    // Validate the email format.
+    if (!emailRegex.test(emailValue)) {
+      e.preventDefault(); // Prevent form submission if the email is invalid.
+      alert('Please enter a valid email address.');
+      return false;
+    }
+
+    // Check the password strength.
     var strength = zxcvbn(passwordValue);
     if (strength.score < 2 || passwordValue.length < 10) {
       e.preventDefault(); // Prevent form submission if the password is weak.
       alert('The password is too weak. Please choose a stronger password.');
+      return false;
     }
   });
 });
+
 
 
 </script>
