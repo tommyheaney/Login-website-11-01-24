@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create an Account</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js"></script>
+<style>
+  /* Your CSS styles go here, mirroring the design from the image provided */
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    margin: 0;
+    padding: 20px;
+  }
+
+  .register-form-container {
+    background: #fff;
+    width: 300px;
+    padding: 20px;
+    margin: 0 auto;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .register-form-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .register-form-container input[type=email],
+  .register-form-container input[type=password] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+
+  .password-strength {
+    color: #d9534f;
+    margin-bottom: 10px;
+  }
+
+  .terms {
+    margin-bottom: 20px;
+  }
+
+  .terms input[type=checkbox] {
+    margin-right: 5px;
+  }
+
+  .register-button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #000;
+    color: white;
+    cursor: pointer;
+  }
+
+  .login-link {
+    text-align: center;
+    margin-top: 20px;
+    color: #0000EE;
+    cursor: pointer;
+  }
+
+  .login-link:hover {
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+
+<div class="register-form-container">
+  <h2>Create an Account</h2>
+  <form id="registration-form">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" required>
+    <label for="password">Password</label>
+<input type="password" id="password" name="password" minlength="10" title="Password must be at least 10 characters long." required>
+    <div class="password-strength" id="password-strength">Weak</div>
+    <div class="terms">
+      <input type="checkbox" id="terms" name="terms" required>
+      <label for="terms">I have read and agree to Lucy's Terms & Conditions and Privacy Policy.</label>
+    </div>
+    <input type="submit" value="Register" class="register-button">
+  </form>
+  <div class="login-link">Already have an account?</div>
+</div>
+
+<script>
+$(document).ready(function() {
+  var submitButton = $('#registration-form input[type="submit"]');
+  submitButton.attr('disabled', true); // Start with the submit button disabled.
+
+  $('#password').on('input', function() {
+    var passwordValue = $(this).val();
+    var strength = zxcvbn(passwordValue);
+    var strengthText = 'Weak';
+    var strengthColor = '#d9534f'; // Red color for weak password.
+    var isPasswordAcceptable = false;
+
+    // Check the length and strength of the password.
+    if (passwordValue.length >= 10) {
+      switch(strength.score) {
+        case 0:
+        case 1:
+          // Weak password.
+          strengthText = 'Weak';
+          isPasswordAcceptable = false;
+          break;
+        case 2:
+        case 3:
+          // Medium strength password.
+          strengthText = 'Medium';
+          strengthColor = '#f0ad4e'; // Orange
+          isPasswordAcceptable = true;
+          break;
+        case 4:
+          // Strong password.
+          strengthText = 'Strong';
+          strengthColor = '#5cb85c'; // Green
+          isPasswordAcceptable = true;
+          break;
+      }
+    } else {
+      // Password does not meet the length requirement.
+      strengthText = 'Weak (min 10 chars)';
+    }
+
+    // Update the password strength text and color.
+    $('#password-strength').text(strengthText).css('color', strengthColor);
+    // Enable or disable the submit button based on the password strength.
+    submitButton.attr('disabled', !isPasswordAcceptable);
+  });
+
+  $('#registration-form').on('submit', function(e) {
+    var passwordValue = $('#password').val();
+    var strength = zxcvbn(passwordValue);
+    if (strength.score < 2 || passwordValue.length < 10) {
+      e.preventDefault(); // Prevent form submission if the password is weak.
+      alert('The password is too weak. Please choose a stronger password.');
+    }
+  });
+});
+
+
+</script>
+
+</body>
+</html>
