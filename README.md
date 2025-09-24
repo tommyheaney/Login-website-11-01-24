@@ -35,11 +35,7 @@ Feel free to fork this repository and submit pull requests with your improvement
 
 This project is open source and available under the [MIT License](LICENSE.md).
 
-## Acknowledgements
-
-- Password strength meter by `zxcvbn`.
-- jQuery team for their easy-to-use library.
 
 ## Contact
 
-Should you have any feedback or questions, please open an issue in the GitHub repository, and I will get back to you as soon as possible.
+Please feel free to use this code if it helps you - Tommy
